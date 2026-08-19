@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './App.css';
 import SettingsView from './components/SettingsView';
 
@@ -62,6 +62,7 @@ function App() {
   });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -69,23 +70,62 @@ function App() {
     priority: 'Medium'
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const handleAddTask = (e: React.FormEvent) => {
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'All' || task.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [tasks, searchTerm, statusFilter]);
+
+  const openModalForAdd = () => {
+    setEditId(null);
+    setNewTask({ title: '', description: '', status: 'In Progress', priority: 'Medium' });
+    setIsModalOpen(true);
+  };
+
+  const openModalForEdit = (task: Task) => {
+    setEditId(task.id);
+    setNewTask({ title: task.title, description: task.description, status: task.status, priority: task.priority });
+    setIsModalOpen(true);
+  };
+
+  const handleTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const task: Task = {
-      id: Date.now(),
-      title: newTask.title,
-      description: newTask.description,
-      status: newTask.status,
-      due: 'Today',
-      priority: newTask.priority,
-    };
-    setTasks([task, ...tasks]);
+    
+    if (editId) {
+      // Update existing task
+      setTasks(tasks.map(task => 
+        task.id === editId ? { ...task, ...newTask } : task
+      ));
+    } else {
+      // Add new task
+      const task: Task = {
+        id: Date.now(),
+        title: newTask.title || 'Untitled Task',
+        description: newTask.description,
+        status: newTask.status,
+        due: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        priority: newTask.priority,
+      };
+      setTasks([task, ...tasks]);
+    }
+    
     setNewTask({ title: '', description: '', status: 'In Progress', priority: 'Medium' });
     setIsModalOpen(false);
+    setEditId(null);
+  };
+
+  const handleDeleteTask = (id: number) => {
+    setTasks(tasks.filter(task => task.id !== id));
   };
 
   const handleToggleComplete = (taskId: number) => {
@@ -235,7 +275,7 @@ function App() {
               <div className="task-list-section">
                 <div className="section-header">
                   <h2>Recent Tasks</h2>
-                  <button className="add-task-btn" onClick={() => setIsModalOpen(true)}>
+                  <button className="add-task-btn" onClick={openModalForAdd}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -275,8 +315,22 @@ function App() {
                           </span>
                         </div>
                       </div>
-                      <div className={`priority-badge ${task.priority.toLowerCase()}`}>
-                        {task.priority}
+                      <div className="task-actions">
+                        <button className="action-btn edit-btn" onClick={() => openModalForEdit(task)}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                        </button>
+                        <button className="action-btn delete-btn" onClick={() => handleDeleteTask(task.id)}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                        <div className={`priority-badge ${task.priority.toLowerCase()}`}>
+                          {task.priority}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -288,52 +342,101 @@ function App() {
           {activeView === 'tasks' && (
             <div className="task-list-section">
               <div className="section-header">
-                <h2>All Tasks</h2>
-                <button className="add-task-btn" onClick={() => setIsModalOpen(true)}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                  New Task
-                </button>
+                <div className="filters">
+                  <div className="search-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input 
+                      type="text" 
+                      placeholder="Search tasks..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <select 
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Overdue">Overdue</option>
+                  </select>
+                  <button className="add-task-btn" onClick={openModalForAdd}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Task
+                  </button>
+                </div>
               </div>
               
               <div className="task-list">
-                {tasks.map((task) => (
-                  <div key={task.id} className="task-item">
-                    <div className="task-checkbox">
-                      <input 
-                        type="checkbox" 
-                        id={`task-${task.id}`} 
-                        checked={task.status === 'Completed'}
-                        onChange={() => handleToggleComplete(task.id)}
-                      />
-                    </div>
-                    <div className="task-details">
-                      <h4 className={task.status === 'Completed' ? 'completed-title' : ''}>
-                        {task.title}
-                      </h4>
-                      <p className="task-desc">{task.description}</p>
-                      <div className="task-meta">
-                        <span className={`status-badge ${task.status.toLowerCase().replace(' ', '-')}`}>
-                          {task.status}
-                        </span>
-                        <span className="task-due">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                {filteredTasks.length > 0 ? (
+                  filteredTasks.map((task) => (
+                    <div key={task.id} className="task-item">
+                      <div className="task-checkbox">
+                        <input 
+                          type="checkbox" 
+                          id={`task-${task.id}`} 
+                          checked={task.status === 'Completed'}
+                          onChange={() => handleToggleComplete(task.id)}
+                        />
+                      </div>
+                      <div className="task-details">
+                        <h4 className={task.status === 'Completed' ? 'completed-title' : ''}>
+                          {task.title}
+                        </h4>
+                        <p className="task-desc">{task.description}</p>
+                        <div className="task-meta">
+                          <span className={`status-badge ${task.status.toLowerCase().replace(' ', '-')}`}>
+                            {task.status}
+                          </span>
+                          <span className="task-due">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                              <line x1="16" y1="2" x2="16" y2="6"></line>
+                              <line x1="8" y1="2" x2="8" y2="6"></line>
+                              <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            {task.due}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="task-actions">
+                        <button className="action-btn edit-btn" onClick={() => openModalForEdit(task)}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                           </svg>
-                          {task.due}
-                        </span>
+                        </button>
+                        <button className="action-btn delete-btn" onClick={() => handleDeleteTask(task.id)}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                        <div className={`priority-badge ${task.priority.toLowerCase()}`}>
+                          {task.priority}
+                        </div>
                       </div>
                     </div>
-                    <div className={`priority-badge ${task.priority.toLowerCase()}`}>
-                      {task.priority}
-                    </div>
+                  ))
+                ) : (
+                  <div className="empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="12" y1="18" x2="12" y2="12"></line>
+                      <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <p>No tasks found</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -343,10 +446,10 @@ function App() {
       </div>
 
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Create New Task</h2>
+              <h2>{editId ? 'Edit Task' : 'Create New Task'}</h2>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -354,7 +457,7 @@ function App() {
                 </svg>
               </button>
             </div>
-            <form onSubmit={handleAddTask}>
+            <form onSubmit={handleTaskSubmit}>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
                 <input 
@@ -407,7 +510,7 @@ function App() {
                   Cancel
                 </button>
                 <button type="submit" className="btn-submit">
-                  Create Task
+                  {editId ? 'Save Changes' : 'Create Task'}
                 </button>
               </div>
             </form>

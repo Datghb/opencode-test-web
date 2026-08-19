@@ -366,6 +366,114 @@
   border-radius: 6px;
 }
 
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.edit-btn {
+  color: #6b7280;
+}
+
+.edit-btn:hover {
+  background-color: #f3f4f6;
+  color: #3b82f6;
+  border-color: #e5e7eb;
+}
+
+.delete-btn {
+  color: #6b7280;
+}
+
+.delete-btn:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border-color: #fecdd3;
+}
+
+/* Filters & Empty State */
+.filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 12px;
+  transition: all 0.2s;
+  width: 300px;
+}
+
+.search-box:focus-within {
+  background-color: #fff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-box svg {
+  color: #9ca3af;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  width: 200px;
+}
+
+.filter-select {
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+}
+
+.filter-select:focus {
+  border-color: #3b82f6;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #9ca3af;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .priority-badge.high {
   background-color: #fef2f2;
   color: #ef4444;
@@ -682,6 +790,10 @@ input:checked + .slider:before {
     align-items: flex-start;
   }
   
+  .task-actions {
+    align-self: flex-start;
+  }
+  
   .priority-badge {
     align-self: flex-start;
   }
@@ -692,5 +804,27 @@ input:checked + .slider:before {
   
   .modal {
     margin: 16px;
+  }
+  
+  .filters {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+  
+  .search-box input {
+    width: 100%;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
