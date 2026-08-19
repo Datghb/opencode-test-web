@@ -1,4 +1,9 @@
-export default function SettingsView() {
+interface SettingsViewProps {
+  theme: string;
+  toggleTheme: () => void;
+}
+
+export default function SettingsView({ theme, toggleTheme }: SettingsViewProps) {
   return (
     <div className="page-content">
       <h2>Settings</h2>
@@ -45,7 +50,11 @@ export default function SettingsView() {
               <span className="setting-desc">Switch to dark theme</span>
             </div>
             <label className="toggle">
-              <input type="checkbox" />
+              <input 
+                type="checkbox" 
+                checked={theme === 'dark'} 
+                onChange={toggleTheme}
+              />
               <span className="slider"></span>
             </label>
           </div>

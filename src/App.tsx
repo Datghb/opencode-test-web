@@ -56,6 +56,7 @@ const initialTasks: Task[] = [
 
 function App() {
   const [activeView, setActiveView] = useState('overview');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [tasks, setTasks] = useState<Task[]>(() => {
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : initialTasks;
@@ -76,6 +77,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
@@ -441,7 +451,7 @@ function App() {
             </div>
           )}
 
-          {activeView === 'settings' && <SettingsView />}
+          {activeView === 'settings' && <SettingsView theme={theme} toggleTheme={toggleTheme} />}
         </div>
       </div>
 
