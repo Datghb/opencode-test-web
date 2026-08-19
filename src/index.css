@@ -1,63 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --bg: #f3f4f6;
+  --bg: #f8fafc;
   --surface: #ffffff;
-  --text: #111827;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --border: #e5e7eb;
-  --border-light: #f3f4f6;
-  --primary: #111827;
-  --primary-hover: #374151;
-  --accent: #3b82f6;
+  --text: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  
+  --primary: #0f172a;
+  --primary-hover: #1e293b;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
   
   --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   
   --success: #10b981;
   --success-bg: #ecfdf5;
-  --warning: #f97316;
-  --warning-bg: #fff7ed;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --warning-light: #fef3c7;
   --danger: #ef4444;
   --danger-bg: #fef2f2;
+  --danger-light: #fee2e2;
   --info: #3b82f6;
   --info-bg: #eff6ff;
+  --info-light: #dbeafe;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  --transition-fast: 150s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] {
-  --bg: #111827;
-  --surface: #1f2937;
-  --text: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --border: #374151;
-  --border-light: #1f2937;
-  --primary: #1f2937;
-  --primary-hover: #374151;
-  --accent: #60a5fa;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #334155;
+  --border-light: #1e293b;
   
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  --primary: #f8fafc;
+  --primary-hover: #e2e8f0;
+  --accent: #818cf8;
+  --accent-hover: #6366f1;
   
-  --success: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.1);
-  --warning: #fb923c;
-  --warning-bg: rgba(251, 146, 60, 0.1);
-  --danger: #f87171;
-  --danger-bg: rgba(248, 113, 113, 0.1);
-  --info: #60a5fa;
-  --info-bg: rgba(96, 165, 250, 0.1);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --info-bg: rgba(59, 130, 246, 0.1);
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg);
   color: var(--text);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+  line-height: 1.5;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+input, textarea, select, button {
+  font-family: inherit;
 }
